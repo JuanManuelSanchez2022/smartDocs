@@ -9,8 +9,6 @@ import {
   Button,
   Container,
   Chip,
-  useTheme,
-  Switch,
   Tooltip
 } from '@mui/material';
 import {
@@ -21,7 +19,9 @@ import {
   FolderOpen as FileIcon,
   History as HistoryIcon,
   Settings as SettingsIcon,
-  Home as HomeIcon
+  Home as HomeIcon,
+  AutoGraph as ValidateIcon,
+  TableChart as TableIcon
 } from '@mui/icons-material';
 
 interface LayoutProps {
@@ -33,7 +33,6 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) => {
   const config = useDocumentStore((state) => state.config);
   const updateConfig = useDocumentStore((state) => state.updateConfig);
-  const theme = useTheme();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
@@ -120,6 +119,28 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageCha
                 }}
               >
                 Historial
+              </Button>
+              <Button
+                startIcon={<ValidateIcon />}
+                onClick={() => onPageChange('learning')}
+                sx={{
+                  fontWeight: 600,
+                  color: currentPage === 'learning' ? 'primary.main' : 'text.secondary',
+                  borderRadius: 2
+                }}
+              >
+                Aprendizaje
+              </Button>
+              <Button
+                startIcon={<TableIcon />}
+                onClick={() => onPageChange('inspector')}
+                sx={{
+                  fontWeight: 600,
+                  color: currentPage === 'inspector' ? 'primary.main' : 'text.secondary',
+                  borderRadius: 2
+                }}
+              >
+                Inspector OCR
               </Button>
               <Button
                 startIcon={<SettingsIcon />}

@@ -20,7 +20,7 @@ export const LoadingOverlay: React.FC = () => {
     <Dialog
       open={open}
       disableEscapeKeyDown
-      onClose={(event, reason) => {
+      onClose={(_, reason) => {
         // Prevent closing on backdrop click or escape key press
         if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
           return;

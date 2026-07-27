@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ProcessedDocument, DocumentModel, DocumentType, DocumentItem } from '../types/document';
+import { ProcessedDocument, DocumentModel, ParserDebugSnapshot, ParsedRecord, InterpretationResult } from '../types/document';
 import { IndexedDBStore } from '../services/storage/IndexedDBStore';
 import { OcrService } from '../services/ocr/OcrService';
 import { PdfService } from '../services/pdf/PdfService';
@@ -88,6 +88,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       let rawText = '';
       let originalImage = '';
       let processedImage = '';
+      let parserDebug: ParserDebugSnapshot | undefined;
+      let parsedRecords: ParsedRecord[] | undefined;
+      let interpretation: InterpretationResult | undefined;
 
       if (fileOrUrl instanceof File) {
         fileName = fileOrUrl.name;
@@ -114,10 +117,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           });
 
           if (pdfResult.isDigital) {
-            // Digital PDF: parse text directly
+            // Digital PDF: parse text directly with debug parser
             rawText = pdfResult.text;
             const docType = DocumentClassifier.classify(rawText);
-            documentModel = DocumentParser.parse(rawText, docType);
+            const parseResult = DocumentParser.debug(rawText, docType);
+            documentModel = parseResult.documentModel;
+            parserDebug = parseResult.debugInfo;
+            parsedRecords = parseResult.records;
+            interpretation = parseResult.interpretation;
           } else if (pdfResult.pages && pdfResult.pages.length > 0) {
             // Scanned PDF: OCR on each rendered page
             const totalPages = pdfResult.pages.length;
@@ -159,7 +166,11 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
             rawText = fullPdfText.trim();
             const docType = DocumentClassifier.classify(rawText);
-            documentModel = DocumentParser.parse(rawText, docType);
+            const parseResult = DocumentParser.debug(rawText, docType);
+            documentModel = parseResult.documentModel;
+            parserDebug = parseResult.debugInfo;
+            parsedRecords = parseResult.records;
+            interpretation = parseResult.interpretation;
           } else {
             throw new Error('El PDF no pudo ser procesado.');
           }
@@ -187,6 +198,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           processedImage = ocrRes.processedImage;
           rawText = ocrRes.text;
           documentModel = ocrRes.parsed;
+          parserDebug = ocrRes.parserDebug;
+          parsedRecords = ocrRes.parsedRecords;
+          interpretation = ocrRes.interpretation;
         }
         // 4. Process WORD
         else if (extension === 'docx') {
@@ -195,6 +209,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           const wordResult = await WordService.processWord(arrayBuffer);
           documentModel = wordResult.parsed;
           rawText = wordResult.text;
+          parserDebug = wordResult.parserDebug;
+          parsedRecords = wordResult.parsedRecords;
+          interpretation = wordResult.interpretation;
           set({ processing: { ...get().processing, progress: 80, step: 'Documento Word procesado con éxito.' } });
         }
         else if (extension === 'doc') {
@@ -233,7 +250,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         rawText,
         originalImage,
         processedImage,
-        extractedData: documentModel
+        extractedData: documentModel,
+        parserDebug,
+        parsedRecords,
+        interpretation
       };
 
       await storage.saveDocument(processedDoc);

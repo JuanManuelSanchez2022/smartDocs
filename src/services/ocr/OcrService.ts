@@ -1,11 +1,20 @@
 import { createWorker, Worker as TessWorker } from 'tesseract.js';
-import { DocumentModel, DocumentType } from '../../types/document';
+import { DocumentModel, ParserDebugSnapshot, ParsedRecord, InterpretationResult } from '../../types/document';
 import { DocumentClassifier } from '../classifier/DocumentClassifier';
 import { DocumentParser } from '../parser/DocumentParser';
 
 export interface ProcessingProgress {
   percentage: number;
   step: string;
+}
+
+export interface OcrServiceResult {
+  processedImage: string;
+  text: string;
+  parsed: DocumentModel;
+  parserDebug?: ParserDebugSnapshot;
+  parsedRecords?: ParsedRecord[];
+  interpretation?: InterpretationResult;
 }
 
 export class OcrService {
@@ -30,7 +39,7 @@ export class OcrService {
       binarizationC: number;
     },
     onProgress: (progress: ProcessingProgress) => void
-  ): Promise<{ processedImage: string; text: string; parsed: DocumentModel }> {
+  ): Promise<OcrServiceResult> {
     this.isCancelled = false;
     onProgress({ percentage: 5, step: 'Inicializando procesador de imágenes...' });
 
@@ -49,16 +58,19 @@ export class OcrService {
 
     onProgress({ percentage: 95, step: 'Clasificando documento y extrayendo campos...' });
 
-    // 3. Classify document and parse text
+    // 3. Classify document and parse text with debug-aware parser
     const docType = DocumentClassifier.classify(extractedText);
-    const parsedModel = DocumentParser.parse(extractedText, docType);
+    const parseResult = DocumentParser.debug(extractedText, docType);
 
     onProgress({ percentage: 100, step: '¡Digitalización completa!' });
 
     return {
       processedImage: processedImageBase64,
       text: extractedText,
-      parsed: parsedModel
+      parsed: parseResult.documentModel,
+      parserDebug: parseResult.debugInfo,
+      parsedRecords: parseResult.records,
+      interpretation: parseResult.interpretation
     };
   }
 

@@ -10,20 +10,14 @@ import {
   Select,
   MenuItem,
   Slider,
-  Switch,
-  FormControlLabel,
   Button,
   Grid,
   Divider,
-  Alert,
   IconButton
 } from '@mui/material';
 import {
-  Settings as SettingsIcon,
   DeleteForever as ClearDbIcon,
-  ArrowBack as BackIcon,
-  HelpOutline as HelpIcon,
-  Save as SaveIcon
+  ArrowBack as BackIcon
 } from '@mui/icons-material';
 
 interface SettingsProps {
@@ -38,10 +32,6 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
 
   const handleLangChange = (val: 'spa' | 'eng') => {
     updateConfig({ ocrLang: val });
-  };
-
-  const handleDarkModeChange = (val: boolean) => {
-    updateConfig({ darkMode: val });
   };
 
   const handleSliderChange = (key: 'contrast' | 'binarizationBlock' | 'binarizationC', val: number) => {
@@ -131,7 +121,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
                   min={1.0}
                   max={3.0}
                   step={0.1}
-                  onChange={(e, val) => handleSliderChange('contrast', val as number)}
+                  onChange={(_, val) => handleSliderChange('contrast', val as number)}
                   valueLabelDisplay="auto"
                 />
                 <Typography variant="caption" color="text.secondary">
@@ -154,7 +144,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
                   min={3}
                   max={31}
                   step={2} // Must be odd number
-                  onChange={(e, val) => handleSliderChange('binarizationBlock', val as number)}
+                  onChange={(_, val) => handleSliderChange('binarizationBlock', val as number)}
                   valueLabelDisplay="auto"
                 />
                 <Typography variant="caption" color="text.secondary">
@@ -177,7 +167,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
                   min={1}
                   max={20}
                   step={1}
-                  onChange={(e, val) => handleSliderChange('binarizationC', val as number)}
+                  onChange={(_, val) => handleSliderChange('binarizationC', val as number)}
                   valueLabelDisplay="auto"
                 />
                 <Typography variant="caption" color="text.secondary">

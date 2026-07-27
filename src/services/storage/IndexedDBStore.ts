@@ -22,7 +22,7 @@ export class IndexedDBStore implements IStorageService {
         resolve(request.result);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains(this.storeName)) {
           // Store documents using 'id' as keypath

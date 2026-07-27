@@ -1,6 +1,7 @@
 // Web Worker for OpenCV.js image preprocessing
 /* eslint-disable no-restricted-globals */
 
+declare function importScripts(...urls: string[]): void;
 // Declare OpenCV global type for compiler safety
 declare let cv: any;
 
@@ -132,7 +133,7 @@ function preprocessImage(
  * Tries to find the 4 corners of a sheet of paper / document and warps the perspective.
  * If no clear quad contour is found, returns null so the original image is preserved.
  */
-function attemptPerspectiveCorrection(grayMat: cv.Mat): cv.Mat | null {
+function attemptPerspectiveCorrection(grayMat: any): any | null {
   // Edge detection
   const edged = new cv.Mat();
   cv.Canny(grayMat, edged, 75, 200, 3, false);
@@ -142,7 +143,7 @@ function attemptPerspectiveCorrection(grayMat: cv.Mat): cv.Mat | null {
   const hierarchy = new cv.Mat();
   cv.findContours(edged, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-  let largestContour: cv.Mat | null = null;
+  let largestContour: any | null = null;
   let maxArea = 0;
 
   for (let i = 0; i < contours.size(); i++) {
@@ -177,7 +178,7 @@ function attemptPerspectiveCorrection(grayMat: cv.Mat): cv.Mat | null {
   }
 
   // Order points: [top-left, top-right, bottom-right, bottom-left]
-  const pts = getOrderedPoints(largestContour, grayMat.cols, grayMat.rows);
+  const pts = getOrderedPoints(largestContour);
   largestContour.delete();
 
   if (!pts) return null;
@@ -228,7 +229,7 @@ interface Point {
   y: number;
 }
 
-function getOrderedPoints(approxContour: cv.Mat, cols: number, rows: number): Point[] | null {
+function getOrderedPoints(approxContour: any): Point[] | null {
   const points: Point[] = [];
   for (let i = 0; i < 4; i++) {
     points.push({

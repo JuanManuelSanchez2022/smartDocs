@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { DocumentModel, DocumentItem, DocumentType } from '../../types/document';
+import { DocumentModel, DocumentItem } from '../../types/document';
 import { DocumentClassifier } from '../classifier/DocumentClassifier';
 
 export class ExcelService {

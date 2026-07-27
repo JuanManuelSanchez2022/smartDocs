@@ -233,7 +233,7 @@ export const OpenFile: React.FC<OpenFileProps> = ({ onNavigate }) => {
                 <Grid item xs={12} md={5}>
                   <Card sx={{ borderRadius: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                      <Tabs value={imageTab} onChange={(e, val) => setImageTab(val)} aria-label="Tabs de imágenes">
+                      <Tabs value={imageTab} onChange={(_, val) => setImageTab(val)} aria-label="Tabs de imágenes">
                         <Tab icon={<ImageIcon />} label="Original" sx={{ minHeight: 48, py: 1 }} />
                         <Tab icon={<ImageIcon />} label="Procesada (OpenCV)" sx={{ minHeight: 48, py: 1 }} />
                       </Tabs>
@@ -261,7 +261,7 @@ export const OpenFile: React.FC<OpenFileProps> = ({ onNavigate }) => {
               <Grid item xs={12} md={showImages && !isExcelOrWord ? 7 : 12}>
                 <Card sx={{ borderRadius: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 2 }}>
-                    <Tabs value={resultTab} onChange={(e, val) => setResultTab(val)} aria-label="Tabs de resultados">
+                    <Tabs value={resultTab} onChange={(_, val) => setResultTab(val)} aria-label="Tabs de resultados">
                       <Tab icon={<TableIcon />} label="Tabla de Items" sx={{ minHeight: 48, py: 1 }} />
                       <Tab icon={<CodeIcon />} label="JSON Generado" sx={{ minHeight: 48, py: 1 }} />
                       {!isExcelOrWord && <Tab icon={<TextIcon />} label="Texto OCR" sx={{ minHeight: 48, py: 1 }} />}
@@ -319,17 +319,17 @@ export const OpenFile: React.FC<OpenFileProps> = ({ onNavigate }) => {
                             {doc.extractedData.items.length > 0 && (
                               <>
                                 <TableRow>
-                                  <TableCell colSpan={4} border={0} />
+                                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                                   <TableCell align="right" sx={{ fontWeight: 'bold' }}>Subtotal:</TableCell>
                                   <TableCell align="right">${doc.extractedData.subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                  <TableCell colSpan={4} border={0} />
+                                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                                   <TableCell align="right" sx={{ fontWeight: 'bold' }}>IVA:</TableCell>
                                   <TableCell align="right">${doc.extractedData.iva.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                  <TableCell colSpan={4} border={0} />
+                                  <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                                   <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>Total:</TableCell>
                                   <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                                     ${doc.extractedData.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}

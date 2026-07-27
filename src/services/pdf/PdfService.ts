@@ -29,7 +29,6 @@ export class PdfService {
     const numPages = pdf.numPages;
     
     let totalText = '';
-    let hasDigitalText = false;
     const extractedPagesText: string[] = [];
 
     onProgress?.(15, 'Analizando contenido digital del PDF...');
@@ -52,7 +51,6 @@ export class PdfService {
     // we consider it a digital PDF.
     const averageChars = totalText.trim().length / numPages;
     if (averageChars > 20) {
-      hasDigitalText = true;
       onProgress?.(100, 'Texto extraído directamente del PDF digital.');
       return {
         isDigital: true,

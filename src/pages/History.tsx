@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDocumentStore } from '../hooks/useDocumentStore';
-import { ProcessedDocument, DocumentType } from '../types/document';
+import { ProcessedDocument } from '../types/document';
 import * as XLSX from 'xlsx';
 import {
   Box,
@@ -412,7 +412,7 @@ export const History: React.FC<HistoryProps> = ({ onNavigate }) => {
           <DialogContent dividers sx={{ p: 0 }}>
             {/* Navigation Tabs */}
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={modalTab} onChange={(e, val) => setModalTab(val)}>
+              <Tabs value={modalTab} onChange={(_, val) => setModalTab(val)}>
                 <Tab icon={<TableIcon />} label="Tabla Items" />
                 <Tab icon={<CodeIcon />} label="JSON Estructurado" />
                 <Tab icon={<TextIcon />} label="Texto Completo" />
@@ -459,17 +459,17 @@ export const History: React.FC<HistoryProps> = ({ onNavigate }) => {
                       {selectedDoc.extractedData.items.length > 0 && (
                         <>
                           <TableRow>
-                            <TableCell colSpan={4} border={0} />
+                            <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                             <TableCell align="right" sx={{ fontWeight: 'bold' }}>Subtotal:</TableCell>
                             <TableCell align="right">${selectedDoc.extractedData.subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</TableCell>
                           </TableRow>
                           <TableRow>
-                            <TableCell colSpan={4} border={0} />
+                            <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                             <TableCell align="right" sx={{ fontWeight: 'bold' }}>IVA (21%):</TableCell>
                             <TableCell align="right">${selectedDoc.extractedData.iva.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</TableCell>
                           </TableRow>
                           <TableRow>
-                            <TableCell colSpan={4} border={0} />
+                            <TableCell colSpan={4} sx={{ borderBottom: 'none' }} />
                             <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>Total:</TableCell>
                             <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                               ${selectedDoc.extractedData.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
@@ -526,7 +526,7 @@ export const History: React.FC<HistoryProps> = ({ onNavigate }) => {
               {modalTab === 3 && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={imgViewTab} onChange={(e, val) => setImgViewTab(val)}>
+                    <Tabs value={imgViewTab} onChange={(_, val) => setImgViewTab(val)}>
                       <Tab label="Imagen Original" />
                       {selectedDoc.processedImage && <Tab label="Procesada (OpenCV)" />}
                     </Tabs>
