@@ -19,9 +19,11 @@ export class AutoClassifier {
   classify(record: NormalizedRecord): { accepted: NormalizedRecord; pending: LearningItem[] } {
     const pending: LearningItem[] = []
 
-    const checkField = (fieldName: string, value: any) => {
+    const checkField = (fieldName: string, value: any, status?: string) => {
       const conf = value && typeof value.confidence === 'number' ? value.confidence : 0
-      if (conf < this.threshold) {
+      const normalizedStatus = status || (conf >= this.threshold ? 'DETECTED' : 'UNKNOWN')
+
+      if (normalizedStatus === 'UNKNOWN' || (normalizedStatus === 'DETECTED' && conf < this.threshold)) {
         pending.push({
           texto: String(value.value || ''),
           campo: fieldName as any,
@@ -35,17 +37,17 @@ export class AutoClassifier {
       }
     }
 
-    checkField('Proveedor', record.proveedor)
-    checkField('Categoria', record.categoria)
-    checkField('Codigo', record.codigo)
-    checkField('Marca', record.marca)
-    checkField('Producto', record.producto)
-    checkField('Tipo', record.tipo)
-    checkField('Presentacion', record.presentacion)
-    checkField('CantidadBulto', record.cantidadBulto)
+    checkField('Proveedor', record.proveedor, record.proveedor.status)
+    checkField('Categoria', record.categoria, record.categoria.status)
+    checkField('Codigo', record.codigo, record.codigo.status)
+    checkField('Marca', record.marca, record.marca.status)
+    checkField('Producto', record.producto, record.producto.status)
+    checkField('Tipo', record.tipo, record.tipo.status)
+    checkField('Presentacion', record.presentacion, record.presentacion.status)
+    checkField('CantidadBulto', record.cantidadBulto, record.cantidadBulto.status)
     // precio has special shape
     const precioConf = record.precio && typeof record.precio.confidence === 'number' ? record.precio.confidence : 0
-    if (precioConf < this.threshold) {
+    if (record.precio.status === 'UNKNOWN' || (record.precio.status === 'DETECTED' && precioConf < this.threshold)) {
       pending.push({
         texto: String(record.precio.value ?? ''),
         campo: 'Precio',

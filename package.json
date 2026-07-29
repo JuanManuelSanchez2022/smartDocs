@@ -9,6 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "download-assets": "node scripts/download-offline-assets.js",
+    "test": "vitest run",
     "postinstall": "npm run download-assets"
   },
   "dependencies": {

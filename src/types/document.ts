@@ -30,6 +30,8 @@ export interface DocumentSegment {
   metadata: Record<string, unknown>;
 }
 
+export type FieldStatus = 'DETECTED' | 'CONFIRMED' | 'CORRECTED' | 'MISSING' | 'UNKNOWN';
+
 export interface ParsedToken {
   id: string;
   rawText: string;
@@ -109,6 +111,7 @@ export interface InterpretedField {
   normalizedText: string;
   category: DocumentCategory;
   confidence: number;
+  status?: FieldStatus;
   row: number;
   column?: number;
   page?: number;
