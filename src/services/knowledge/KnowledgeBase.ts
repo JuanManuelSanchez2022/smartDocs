@@ -1,5 +1,12 @@
 import { KnowledgeEntry } from '../../types/document';
 
+/**
+ * KnowledgeBase: persistent store for providers, categories, products,
+ * synonyms, corrections and learned patterns.
+ *
+ * This is a minimal in-memory skeleton. Persist to IndexedDB or server
+ * will be added later.
+ */
 export class KnowledgeBase {
   private static readonly STORAGE_KEY = 'DocuMind.KnowledgeBase';
   private static entries: KnowledgeEntry[] = [];
@@ -47,3 +54,5 @@ export class KnowledgeBase {
     window.localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.entries));
   }
 }
+
+export default KnowledgeBase

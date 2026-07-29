@@ -8,6 +8,7 @@ import { Capture } from './pages/Capture';
 import { OpenFile } from './pages/OpenFile';
 import { History } from './pages/History';
 import { LearningCenter } from './pages/LearningCenter';
+import { LearningReview } from './pages/LearningReview';
 import { OcrInspector } from './pages/OcrInspector';
 import { Settings } from './pages/Settings';
 
@@ -102,6 +103,8 @@ export const App: React.FC = () => {
         return <History onNavigate={setCurrentPage} />;
       case 'learning':
         return <LearningCenter onNavigate={setCurrentPage} />;
+      case 'review':
+        return <LearningReview onNavigate={setCurrentPage} />;
       case 'inspector':
         return <OcrInspector onNavigate={setCurrentPage} />;
       case 'settings':

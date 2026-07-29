@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ProcessedDocument, DocumentModel, ParserDebugSnapshot, ParsedRecord, InterpretationResult } from '../types/document';
+import { ProcessedDocument, DocumentModel, ParserDebugSnapshot, ParsedRecord, InterpretationResult, DocumentSegment, ParsedToken } from '../types/document';
 import { IndexedDBStore } from '../services/storage/IndexedDBStore';
 import { OcrService } from '../services/ocr/OcrService';
 import { PdfService } from '../services/pdf/PdfService';
@@ -9,6 +9,26 @@ import { DocumentParser } from '../services/parser/DocumentParser';
 import { WordService } from '../services/word/WordService';
 
 const storage = new IndexedDBStore();
+
+const markLearningFields = (interpretation?: InterpretationResult): InterpretationResult | undefined => {
+  if (!interpretation) {
+    return undefined;
+  }
+
+  return {
+    ...interpretation,
+    fields: interpretation.fields.map((field) => {
+      const autoAccepted = field.confidence >= 0.8;
+      const nextStatus = field.status || (autoAccepted ? 'ACCEPTED' : field.rawText ? 'PENDING' : 'NO_DATA');
+      return {
+        ...field,
+        status: nextStatus as any,
+        confirmed: (field.confirmed ?? false) || nextStatus === 'ACCEPTED' || nextStatus === 'CORRECTED',
+        editable: field.editable ?? true
+      };
+    })
+  };
+};
 
 export interface AppConfig {
   ocrLang: 'spa' | 'eng';
@@ -37,6 +57,7 @@ interface DocumentStore {
   clearHistory: () => Promise<void>;
   cancelProcessing: () => void;
   updateConfig: (newConfig: Partial<AppConfig>) => void;
+  updateDocument: (id: string, updates: Partial<ProcessedDocument>) => void;
   resetProcessing: () => void;
 }
 
@@ -91,6 +112,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       let parserDebug: ParserDebugSnapshot | undefined;
       let parsedRecords: ParsedRecord[] | undefined;
       let interpretation: InterpretationResult | undefined;
+      let segments: DocumentSegment[] | undefined;
+      let tokens: ParsedToken[] | undefined;
 
       if (fileOrUrl instanceof File) {
         fileName = fileOrUrl.name;
@@ -125,6 +148,11 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
             parserDebug = parseResult.debugInfo;
             parsedRecords = parseResult.records;
             interpretation = parseResult.interpretation;
+            // Store segments and tokens for inspector transparency
+            (parserDebug as any) && (parserDebug); // keep linter quiet
+            // attach segments/tokens
+            segments = parseResult.segments;
+            tokens = parseResult.tokens;
           } else if (pdfResult.pages && pdfResult.pages.length > 0) {
             // Scanned PDF: OCR on each rendered page
             const totalPages = pdfResult.pages.length;
@@ -171,6 +199,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
             parserDebug = parseResult.debugInfo;
             parsedRecords = parseResult.records;
             interpretation = parseResult.interpretation;
+            segments = parseResult.segments;
+            tokens = parseResult.tokens;
           } else {
             throw new Error('El PDF no pudo ser procesado.');
           }
@@ -200,7 +230,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           documentModel = ocrRes.parsed;
           parserDebug = ocrRes.parserDebug;
           parsedRecords = ocrRes.parsedRecords;
-          interpretation = ocrRes.interpretation;
+          interpretation = markLearningFields(ocrRes.interpretation);
+          // include segments/tokens from OCR result (if present)
+          segments = (ocrRes as any).segments;
+          tokens = (ocrRes as any).tokens;
         }
         // 4. Process WORD
         else if (extension === 'docx') {
@@ -211,7 +244,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           rawText = wordResult.text;
           parserDebug = wordResult.parserDebug;
           parsedRecords = wordResult.parsedRecords;
-          interpretation = wordResult.interpretation;
+          interpretation = markLearningFields(wordResult.interpretation);
+          segments = (wordResult as any).segments;
+          tokens = (wordResult as any).tokens;
           set({ processing: { ...get().processing, progress: 80, step: 'Documento Word procesado con éxito.' } });
         }
         else if (extension === 'doc') {
@@ -237,6 +272,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         processedImage = ocrRes.processedImage;
         rawText = ocrRes.text;
         documentModel = ocrRes.parsed;
+        parserDebug = ocrRes.parserDebug;
+        parsedRecords = ocrRes.parsedRecords;
+        interpretation = markLearningFields(ocrRes.interpretation);
       }
 
       // Save successful result to history
@@ -254,6 +292,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         parserDebug,
         parsedRecords,
         interpretation
+        ,
+        segments,
+        tokens
       };
 
       await storage.saveDocument(processedDoc);
@@ -312,6 +353,24 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       await get().loadHistory();
     } catch (err) {
       console.error('Error deleting document:', err);
+    }
+  },
+
+  updateDocument: async (id: string, updates: Partial<ProcessedDocument>) => {
+    const current = get().documents.find((doc) => doc.id === id);
+    if (!current) {
+      return;
+    }
+
+    const nextDoc = { ...current, ...updates };
+    set((state) => ({
+      documents: state.documents.map((doc) => (doc.id === id ? nextDoc : doc))
+    }));
+
+    try {
+      await storage.saveDocument(nextDoc);
+    } catch (err) {
+      console.error('Error persisting updated document:', err);
     }
   },
 

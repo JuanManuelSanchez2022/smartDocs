@@ -16,6 +16,7 @@ export class FieldClassifier {
     precio: ['precio', 'valor unitario', 'p.unit', 'p.u.', 'importe', 'precio unitario', 'valor unitario'],
     marca: ['marca', 'brand'],
     categoria: ['categoría', 'categoria', 'rubro', 'segmento'],
+    tipo: ['tipo', 'variante', 'serie', 'formato'],
     subcategoria: ['subcategoría', 'subcategoria', 'subrubro'],
     unidad: ['unidad', 'u.', 'u', 'unidad de medida'],
     iva: ['iva', 'alícuota', 'alicuota', 'tax'],

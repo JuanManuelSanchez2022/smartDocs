@@ -15,6 +15,7 @@ export type DocumentCategory =
   | 'precio_caja'
   | 'descuento'
   | 'observaciones'
+  | 'tipo'
   | 'otro';
 
 export type ParserSegmentType = 'header' | 'subheader' | 'table' | 'line' | 'footer' | 'ignored';
@@ -101,6 +102,8 @@ export interface BoundingBox {
   height: number;
 }
 
+export type LearningItemStatus = 'PENDING' | 'ACCEPTED' | 'CORRECTED' | 'REJECTED' | 'NO_DATA';
+
 export interface InterpretedField {
   rawText: string;
   normalizedText: string;
@@ -114,6 +117,7 @@ export interface InterpretedField {
   layoutDetected?: string;
   confirmed: boolean;
   editable: boolean;
+  status?: LearningItemStatus;
   metadata?: Record<string, unknown>;
 }
 
@@ -150,6 +154,21 @@ export interface DocumentModel {
   observaciones: string;
 }
 
+export interface TrainingExampleEntry {
+  rawText: string;
+  normalizedText: string;
+  assignedCategory: string;
+  context: string;
+  neighboringText: string;
+  documentType: string;
+  provider: string;
+  categoryContext: string;
+  previousPrediction: string | null;
+  previousConfidence: number;
+  humanCorrection: boolean;
+  timestamp: string;
+}
+
 export interface ProcessedDocument {
   id: string;
   fileName: string;
@@ -165,6 +184,9 @@ export interface ProcessedDocument {
   interpretation?: InterpretationResult;
   parserDebug?: ParserDebugSnapshot;
   parsedRecords?: ParsedRecord[];
+  segments?: DocumentSegment[];
+  tokens?: ParsedToken[];
+  trainingExamples?: TrainingExampleEntry[];
   version?: number;
   changeHistoryIds?: string[];
 }
@@ -179,6 +201,12 @@ export interface LearningReviewItem {
   category: DocumentCategory;
   confidence: number;
   correctedValue?: string;
+  status?: LearningItemStatus;
+  context?: string;
+  detectedCategory?: DocumentCategory | 'otro';
+  sourceDocument?: string;
+  sourceBlock?: string;
+  sourceLine?: string;
 }
 
 export type CatalogEntityType =
@@ -274,4 +302,11 @@ export interface LearningSummary {
   lowConfidenceItems: string[];
   possibleDuplicates: string[];
   detectedSynonyms: string[];
+  documentsProcessed: number;
+  recordsNormalized: number;
+  fieldsAutoClassified: number;
+  fieldsPending: number;
+  fieldsCorrected: number;
+  averageConfidence: number;
+  estimatedPrecision: number;
 }

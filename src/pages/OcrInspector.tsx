@@ -10,17 +10,16 @@ import {
   Select,
   SelectChangeEvent,
   FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper
+  InputLabel
 } from '@mui/material';
 import { ArrowBack as BackIcon } from '@mui/icons-material';
 import { useDocumentStore } from '../hooks/useDocumentStore';
+import { OCRTextViewer } from '../components/OCRTextViewer';
+import { TokenViewer } from '../components/TokenViewer';
+import { ClassificationViewer } from '../components/ClassificationViewer';
+import { RecordViewer } from '../components/RecordViewer';
+import { LearningPanel } from '../components/LearningPanel';
+import { ProcessedDocument } from '../types/document';
 
 interface OcrInspectorProps {
   onNavigate: (page: string) => void;
@@ -98,125 +97,20 @@ export const OcrInspector: React.FC<OcrInspectorProps> = ({ onNavigate }) => {
       {selectedDocument ? (
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 4, p: 2, height: '100%' }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  Información del documento
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Nombre:</strong> {selectedDocument.fileName}</Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Tipo:</strong> {selectedDocument.fileType}</Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Procesado:</strong> {selectedDocument.processedAt}</Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Status:</strong> {selectedDocument.status}</Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Registros:</strong> {selectedDocument.parsedRecords?.length ?? 0}</Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>Tokens:</strong> {selectedDocument.interpretation?.fields.length ?? 0}</Typography>
-              </CardContent>
-            </Card>
+            <OCRTextViewer document={selectedDocument as ProcessedDocument} />
+            <Box sx={{ mt: 2 }}>
+              <RecordViewer records={selectedDocument.parsedRecords} />
+            </Box>
           </Grid>
 
           <Grid item xs={12} md={8}>
-            <Card sx={{ borderRadius: 4, p: 2 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  Estadísticas de Parser
-                </Typography>
-                {selectedDocument.parserDebug ? (
-                  <Box>
-                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Segmentos:</strong> {selectedDocument.parserDebug.segmentsDetected}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Líneas:</strong> {selectedDocument.parserDebug.linesDetected}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Tokens:</strong> {selectedDocument.parserDebug.tokensDetected}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Registros:</strong> {selectedDocument.parserDebug.recordsBuilt}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Tokens baja confianza:</strong> {selectedDocument.parserDebug.lowConfidenceTokens}</Typography>
-                    <Typography variant="body2" sx={{ mt: 2, fontWeight: 700 }}>Tiempos de etapa</Typography>
-                    {selectedDocument.parserDebug.stageTimings.map((timing) => (
-                      <Typography key={timing.stage} variant="body2" sx={{ mb: 0.5 }}>
-                        {timing.stage}: {timing.durationMs.toFixed(1)} ms
-                      </Typography>
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">No hay datos de depuración disponibles.</Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Card sx={{ borderRadius: 4, p: 2 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  Registros parseados
-                </Typography>
-                {selectedDocument.parsedRecords && selectedDocument.parsedRecords.length > 0 ? (
-                  <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Linea</TableCell>
-                          <TableCell>Producto</TableCell>
-                          <TableCell>Código</TableCell>
-                          <TableCell>Cantidad</TableCell>
-                          <TableCell>Precio</TableCell>
-                          <TableCell>Confianza</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedDocument.parsedRecords.slice(0, 20).map((record) => (
-                          <TableRow key={record.id}>
-                            <TableCell>{record.lineIndex + 1}</TableCell>
-                            <TableCell>{record.producto}</TableCell>
-                            <TableCell>{record.codigo}</TableCell>
-                            <TableCell>{record.cantidad}</TableCell>
-                            <TableCell>{record.precio}</TableCell>
-                            <TableCell>{Math.round(record.confidence * 100)}%</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">No hay registros parseados para este documento.</Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Card sx={{ borderRadius: 4, p: 2 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  Campos OCR más bajos en confianza
-                </Typography>
-                {selectedDocument.interpretation?.fields.length ? (
-                  <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Texto</TableCell>
-                          <TableCell>Categoría</TableCell>
-                          <TableCell>Confianza</TableCell>
-                          <TableCell>Línea</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedDocument.interpretation?.fields
-                          .sort((a, b) => a.confidence - b.confidence)
-                          .slice(0, 20)
-                          .map((field, idx) => (
-                            <TableRow key={`${field.rawText}-${idx}`}>
-                              <TableCell>{field.rawText}</TableCell>
-                              <TableCell>{field.category}</TableCell>
-                              <TableCell>{Math.round(field.confidence * 100)}%</TableCell>
-                              <TableCell>{field.row + 1}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">No hay campos disponibles en este documento.</Typography>
-                )}
-              </CardContent>
-            </Card>
+            <TokenViewer tokens={selectedDocument.tokens} />
+            <Box sx={{ mt: 2 }}>
+              <ClassificationViewer fields={selectedDocument.interpretation?.fields} />
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <LearningPanel />
+            </Box>
           </Grid>
         </Grid>
       ) : (
