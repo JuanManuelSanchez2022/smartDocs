@@ -30,7 +30,7 @@ export interface DocumentSegment {
   metadata: Record<string, unknown>;
 }
 
-export type FieldStatus = 'DETECTED' | 'CONFIRMED' | 'CORRECTED' | 'MISSING' | 'UNKNOWN';
+export type FieldStatus = 'DETECTED' | 'CONFIRMED' | 'CORRECTED' | 'MISSING' | 'UNKNOWN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NO_DATA';
 
 export interface ParsedToken {
   id: string;
@@ -120,7 +120,6 @@ export interface InterpretedField {
   layoutDetected?: string;
   confirmed: boolean;
   editable: boolean;
-  status?: LearningItemStatus;
   metadata?: Record<string, unknown>;
 }
 

@@ -29,8 +29,8 @@ export const NormalizedTable: React.FC<Props> = ({ documents }) => {
     return (
       <Card sx={{ borderRadius: 4 }}>
         <CardContent>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>Tabla normalizada</Typography>
-          <Typography variant="body2">No hay registros normalizados disponibles.</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>Tabla normalizada (9 campos)</Typography>
+          <Typography variant="body2" color="text.secondary">No hay registros normalizados disponibles.</Typography>
         </CardContent>
       </Card>
     );
@@ -48,25 +48,25 @@ export const NormalizedTable: React.FC<Props> = ({ documents }) => {
       <CardContent>
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>Tabla normalizada</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>Tabla normalizada (Esquema Unificado SmartDocs)</Typography>
             <Typography variant="body2" color="text.secondary">
-              Edite valores, categorías y confianza directamente desde aquí.
+              9 campos estandarizados: Proveedor | Categoría | Código | Producto | Tipo | Presentación | Precio | Marca | Cantidad Bulto
             </Typography>
           </Box>
-          <Chip label="Editando registros" color="primary" />
+          <Chip label={`${documents.length} registros`} color="primary" />
         </Stack>
 
-        <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+        <TableContainer component={Paper} sx={{ boxShadow: 'none', overflowX: 'auto' }}>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Proveedor</TableCell>
-                <TableCell>Producto</TableCell>
-                <TableCell>Código</TableCell>
-                <TableCell>Presentación</TableCell>
-                <TableCell>Cantidad</TableCell>
-                <TableCell>Precio</TableCell>
-                <TableCell>Confianza</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Proveedor</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Código</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Producto (Descripción)</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Presentación</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Cantidad / Bulto</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Precio</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Marca</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -74,42 +74,43 @@ export const NormalizedTable: React.FC<Props> = ({ documents }) => {
                 <TableRow key={record.id} hover>
                   <TableCell>
                     <TextField
-                      value={record.proveedor}
+                      value={record.proveedor || ''}
                       size="small"
                       onChange={(e) => handleCellChange(record.id, 'proveedor', e.target.value)}
                     />
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={record.producto}
+                      value={record.codigo || ''}
                       size="small"
+                      onChange={(e) => handleCellChange(record.id, 'codigo', e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ minWidth: 260 }}>
+                    <TextField
+                      value={record.producto || ''}
+                      size="small"
+                      fullWidth
                       onChange={(e) => handleCellChange(record.id, 'producto', e.target.value)}
                     />
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={record.codigo}
-                      size="small"
-                      onChange={(e) => handleCellChange(record.id, 'codigo', e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      value={record.presentacion}
+                      value={record.presentacion || ''}
                       size="small"
                       onChange={(e) => handleCellChange(record.id, 'presentacion', e.target.value)}
                     />
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={record.cantidad}
+                      value={record.cantidad || ''}
                       size="small"
                       onChange={(e) => handleCellChange(record.id, 'cantidad', e.target.value)}
                     />
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={record.precio}
+                      value={record.precio || 0}
                       size="small"
                       type="number"
                       onChange={(e) => handleCellChange(record.id, 'precio', Number(e.target.value))}
@@ -117,11 +118,9 @@ export const NormalizedTable: React.FC<Props> = ({ documents }) => {
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={record.confidence}
+                      value={(record as any).marca || ''}
                       size="small"
-                      type="number"
-                      inputProps={{ min: 0, max: 1, step: 0.01 }}
-                      onChange={(e) => handleCellChange(record.id, 'confidence', Number(e.target.value))}
+                      onChange={(e) => handleCellChange(record.id, 'marca' as any, e.target.value)}
                     />
                   </TableCell>
                 </TableRow>

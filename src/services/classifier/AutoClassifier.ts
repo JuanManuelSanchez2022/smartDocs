@@ -20,12 +20,15 @@ export class AutoClassifier {
     const pending: LearningItem[] = []
 
     const checkField = (fieldName: string, value: any, status?: string) => {
-      const conf = value && typeof value.confidence === 'number' ? value.confidence : 0
-      const normalizedStatus = status || (conf >= this.threshold ? 'DETECTED' : 'UNKNOWN')
+      const valStr = value && value.value !== undefined && value.value !== null ? String(value.value).trim() : '';
+      if (!valStr) return; // Do not emit learning items for missing/empty fields
+
+      const conf = value && typeof value.confidence === 'number' ? value.confidence : 0;
+      const normalizedStatus = status || (conf >= this.threshold ? 'DETECTED' : 'UNKNOWN');
 
       if (normalizedStatus === 'UNKNOWN' || (normalizedStatus === 'DETECTED' && conf < this.threshold)) {
         pending.push({
-          texto: String(value.value || ''),
+          texto: valStr,
           campo: fieldName as any,
           proveedor: String(record.proveedor.value || ''),
           pagina: record.page,
@@ -37,19 +40,22 @@ export class AutoClassifier {
       }
     }
 
-    checkField('Proveedor', record.proveedor, record.proveedor.status)
-    checkField('Categoria', record.categoria, record.categoria.status)
-    checkField('Codigo', record.codigo, record.codigo.status)
-    checkField('Marca', record.marca, record.marca.status)
-    checkField('Producto', record.producto, record.producto.status)
-    checkField('Tipo', record.tipo, record.tipo.status)
-    checkField('Presentacion', record.presentacion, record.presentacion.status)
-    checkField('CantidadBulto', record.cantidadBulto, record.cantidadBulto.status)
+    checkField('Proveedor', record.proveedor)
+    checkField('Categoria', record.categoria)
+    checkField('Codigo', record.codigo)
+    checkField('Marca', record.marca)
+    checkField('Producto', record.producto)
+    checkField('Tipo', record.tipo)
+    checkField('Presentacion', record.presentacion)
+    checkField('CantidadBulto', record.cantidadBulto)
+
     // precio has special shape
-    const precioConf = record.precio && typeof record.precio.confidence === 'number' ? record.precio.confidence : 0
-    if (record.precio.status === 'UNKNOWN' || (record.precio.status === 'DETECTED' && precioConf < this.threshold)) {
+    const precioVal = record.precio && record.precio.value !== null && record.precio.value !== undefined ? String(record.precio.value) : '';
+    const precioConf = record.precio && typeof record.precio.confidence === 'number' ? record.precio.confidence : 0;
+    
+    if (precioVal && precioConf < this.threshold) {
       pending.push({
-        texto: String(record.precio.value ?? ''),
+        texto: precioVal,
         campo: 'Precio',
         proveedor: String(record.proveedor.value || ''),
         pagina: record.page,

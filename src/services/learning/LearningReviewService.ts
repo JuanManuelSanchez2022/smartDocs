@@ -39,7 +39,7 @@ export class LearningReviewService {
         category: (field.category || 'otro') as DocumentCategory,
         confidence: field.confidence || 0,
         correctedValue: field.normalizedText,
-        status: field.status || 'PENDING',
+        status: (field.status || 'PENDING') as any,
         context: field.metadata?.context as string | undefined,
         detectedCategory: field.metadata?.detectedCategory as DocumentCategory | 'otro' | undefined,
         sourceDocument: document.fileName,

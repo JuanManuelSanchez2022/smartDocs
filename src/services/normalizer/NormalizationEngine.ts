@@ -47,7 +47,7 @@ export class NormalizationEngine {
     return { records, pending }
   }
 
-  private normalizedFromCandidate(rc: RecordCandidate): NormalizedRecord {
+  public normalizedFromCandidate(rc: RecordCandidate): NormalizedRecord {
     const safeStr = (s: any) => (s === undefined || s === null ? '' : String(s).trim())
 
     const nr: NormalizedRecord = {

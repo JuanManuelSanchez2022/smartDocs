@@ -27,6 +27,47 @@ export class ContextEngine {
     return { ...this.context }
   }
 
+  setProveedor(value: string, confidence = 0.9) {
+    if (value && value.trim()) {
+      this.context.proveedor = { value: value.trim(), confidence }
+    }
+  }
+
+  setCategoria(value: string, confidence = 0.85) {
+    if (value && value.trim()) {
+      this.context.categoria = { value: value.trim(), confidence }
+    }
+  }
+
+  updateFromLine(text: string, isHeader = false, isSubheader = false) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const lower = trimmed.toLowerCase();
+
+    // Provider detection heuristics
+    const providerMatch = trimmed.match(/(?:proveedor|empresa|distribuidor|raz[oó]n social|vendedor):\s*(.+)/i);
+    if (providerMatch) {
+      this.setProveedor(providerMatch[1]);
+      return;
+    }
+
+    if (isHeader && !this.context.proveedor && (lower.includes('s.a.') || lower.includes('s.r.l.') || lower.includes('distribuidora') || lower.includes('comercial'))) {
+      this.setProveedor(trimmed);
+      return;
+    }
+
+    // Category detection heuristics
+    const categoryMatch = trimmed.match(/(?:categor[ií]a|rubro|secci[oó]n|familia):\s*(.+)/i);
+    if (categoryMatch) {
+      this.setCategoria(categoryMatch[1]);
+      return;
+    }
+
+    if ((isSubheader || (isHeader && !trimmed.includes(':'))) && trimmed === trimmed.toUpperCase() && trimmed.length >= 3 && trimmed.length <= 40 && !/\d{3,}/.test(trimmed)) {
+      this.setCategoria(trimmed);
+    }
+  }
+
   // Update the current context with a TempObject that suggests
   // a specific field. Store both value and confidence so the
   // NormalizationEngine can reason about low-confidence context.

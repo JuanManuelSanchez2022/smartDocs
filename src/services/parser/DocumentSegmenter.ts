@@ -112,6 +112,8 @@ export class DocumentSegmenter {
 
   private static isTableLine(text: string): boolean {
     const numericParts = text.match(/\d+/g) || [];
-    return numericParts.length >= 2 && TABLE_LINE_REGEX.test(text);
+    if (numericParts.length === 0) return false;
+    const hasPricePattern = /\$?\s*\d+(?:[.,]\d+)?/.test(text);
+    return hasPricePattern || TABLE_LINE_REGEX.test(text);
   }
 }

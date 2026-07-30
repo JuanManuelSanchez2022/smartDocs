@@ -33,6 +33,7 @@ import {
   Description as TextIcon,
   Image as ImageIcon
 } from '@mui/icons-material';
+import { NormalizedTable } from '../components/NormalizedTable';
 
 interface OpenFileProps {
   onNavigate: (page: string) => void;
@@ -386,6 +387,11 @@ export const OpenFile: React.FC<OpenFileProps> = ({ onNavigate }) => {
                 </Card>
               </Grid>
             </Grid>
+          )}
+
+          {/* Render Normalized Table with 9 standard fields */}
+          {processing.status === 'success' && doc.parsedRecords && doc.parsedRecords.length > 0 && (
+            <NormalizedTable documents={doc.parsedRecords} />
           )}
 
         </Box>

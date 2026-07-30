@@ -61,7 +61,7 @@ export class LearningCenterService {
       category: field.category,
       confidence: field.confidence,
       correctedValue: field.normalizedText,
-      status: field.status,
+      status: field.status as any,
       context: field.metadata?.context as string | undefined,
       detectedCategory: field.metadata?.detectedCategory as DocumentCategory | 'otro' | undefined,
       sourceDocument: doc.fileName,
